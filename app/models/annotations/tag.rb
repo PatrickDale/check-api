@@ -1,7 +1,7 @@
 class Tag
   include AnnotationBase
 
-  attribute :tag, String, presence: true
+  attribute :tag, String, mapping: {index: 'not_analyzed'}, presence: true
   validates_presence_of :tag
   validates :tag, uniqueness: { fields: [:annotated_type, :annotated_id, :context_type, :context_id] }, if: lambda { |t| t.id.blank? }
 
