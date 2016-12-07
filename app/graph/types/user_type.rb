@@ -39,4 +39,17 @@ UserType = GraphqlCrudOperations.define_default_type do
       user.team_users
     }
   end
+
+  connection :annotations, -> { AnnotationType.connection_type } do
+    argument :type, types.String
+
+    resolve ->(user, args, _ctx) {
+      type = args['type']
+      matches = [{ match: { annotator_type: 'User' } }, { match: { annotator_id: user.id.to_s } }]
+      matches << { terms: { annotation_type: [*type] } } unless type.nil?
+      query = { bool: { must: matches } }
+      params = { query: query, sort: [{ created_at: { order: 'desc' }}, '_score'] }
+      ElasticsearchRelation.new(params).all
+    }
+  end
 end
