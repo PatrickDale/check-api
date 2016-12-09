@@ -204,6 +204,16 @@ class GraphqlCrudOperations
         }
       end
 
+      field :media do
+        type MediaType
+
+        resolve -> (annotation, _args, _ctx) {
+          media = annotation.annotated_type == 'Media' ? annotation.annotated : nil
+          media.project_id = annotation.context_id.to_i unless media.nil?
+          media
+        }
+      end
+
       connection :medias, -> { MediaType.connection_type } do
         resolve ->(annotation, _args, _ctx) {
           annotation.entity_objects

@@ -13,6 +13,7 @@ UserType = GraphqlCrudOperations.define_default_type do
   field :name, types.String
   field :current_team_id, types.Int
   field :permissions, types.String
+  field :get_languages, types.String
 
   field :source do
     type SourceType
@@ -49,7 +50,7 @@ UserType = GraphqlCrudOperations.define_default_type do
       matches << { terms: { annotation_type: [*type] } } unless type.nil?
       query = { bool: { must: matches } }
       params = { query: query, sort: [{ created_at: { order: 'desc' }}, '_score'] }
-      ElasticsearchRelation.new(params).all
+      ElasticsearchRelation.new(params).to_a
     }
   end
 end

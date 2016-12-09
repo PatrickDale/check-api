@@ -76,7 +76,7 @@ MediaType = GraphqlCrudOperations.define_default_type do
 end
 
 def annotation_types
-  ['comment', 'status', 'tag', 'flag']
+  ['comment', 'status', 'tag', 'flag', 'translation']
 end
 
 def media_context(media, args, ctx)

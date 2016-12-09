@@ -1,6 +1,6 @@
 class Media < ActiveRecord::Base
   attr_accessible
-  attr_accessor :project_id, :duplicated_of, :information, :project_object
+  attr_accessor :project_id, :duplicated_of, :information, :project_object, :annotation
 
   has_paper_trail on: [:create, :update]
   belongs_to :account
@@ -17,7 +17,7 @@ class Media < ActiveRecord::Base
   validate :url_is_unique, on: :create
 
   before_validation :set_url_nil_if_empty, :set_user, on: :create
-  after_create :set_pender_result_as_annotation, :set_information, :set_project, :set_account
+  after_create :set_pender_result_as_annotation, :set_information, :set_project, :set_account, :set_annotation
   after_update :set_information
   after_rollback :duplicate
 
@@ -194,5 +194,20 @@ class Media < ActiveRecord::Base
       return false
     end
     true
+  end
+
+  def set_annotation
+    unless self.annotation.blank?
+      data = JSON.parse(self.annotation)
+      klass = data['annotation_type'] || 'annotation'
+      a = klass.camelize.constantize.new
+      data.each do |key, value|
+        a.send("#{key}=", value)
+      end
+      a.annotator = self.current_user
+      a.annotated = self
+      a.context = self.project
+      a.save
+    end
   end
 end
